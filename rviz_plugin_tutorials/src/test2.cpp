@@ -1,3 +1,31 @@
+/*
+ * Copyright (c) 2011, Willow Garage, Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     * Neither the name of the Willow Garage, Inc. nor the names of its
+ *       contributors may be used to endorse or promote products derived from
+ *       this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ */
 
 #include <OGRE/OgreEntity.h>
 #include <OGRE/OgreSceneManager.h>
@@ -11,9 +39,8 @@
 #include <rviz/viewport_mouse_event.h>
 #include <rviz/visualization_manager.h>
 
-#include "plant_flag_tool.h"
-#include <geometry_msgs/Point.h>
 
+#include "test2.h"
 namespace rviz_plugin_tutorials {
 
 // BEGIN_TUTORIAL
@@ -25,17 +52,16 @@ namespace rviz_plugin_tutorials {
 //
 // Here we set the "shortcut_key_" member variable defined in the
 // superclass to declare which key will activate the tool.
-PlantFlagTool::PlantFlagTool()
+PlantFlagTool2::PlantFlagTool2()
     : moving_flag_node_(NULL), current_flag_property_(NULL) {
   shortcut_key_ = 'l';
-  station_pose_pub_ = nh_.advertise<geometry_msgs::Point>("station_pose", 1);
 }
 
 // The destructor destroys the Ogre scene nodes for the flags so they
 // disappear from the 3D scene.  The destructor for a Tool subclass is
 // only called when the tool is removed from the toolbar with the "-"
 // button.
-PlantFlagTool::~PlantFlagTool() {
+PlantFlagTool2::~PlantFlagTool2() {
   for (unsigned i = 0; i < flag_nodes_.size(); i++) {
     scene_manager_->destroySceneNode(flag_nodes_[i]);
   }
@@ -52,11 +78,11 @@ PlantFlagTool::~PlantFlagTool() {
 // In this case we load a mesh object with the shape and appearance of
 // the flag, create an Ogre::SceneNode for the moving flag, and then
 // set it invisible.
-void PlantFlagTool::onInitialize() {
+void PlantFlagTool2::onInitialize() {
   flag_resource_ = "package://rviz_plugin_tutorials/media/flag.dae";
 
   if (rviz::loadMeshFromResource(flag_resource_).isNull()) {
-    ROS_ERROR("PlantFlagTool: failed to load model resource '%s'.",
+    ROS_ERROR("PlantFlagTool2: failed to load model resource '%s'.",
               flag_resource_.c_str());
     return;
   }
@@ -85,7 +111,7 @@ void PlantFlagTool::onInitialize() {
 // if it were writable the flag should really change position when the
 // user edits the property.  This is a fine idea, and is possible, but
 // is left as an exercise for the reader.
-void PlantFlagTool::activate() {
+void PlantFlagTool2::activate() {
   if (moving_flag_node_) {
     moving_flag_node_->setVisible(true);
 
@@ -104,7 +130,7 @@ void PlantFlagTool::activate() {
 // property, so that doesn't need to be done in a separate step.  If
 // we didn't delete it here, it would stay in the list of flags when
 // we switch to another tool.
-void PlantFlagTool::deactivate() {
+void PlantFlagTool2::deactivate() {
   if (moving_flag_node_) {
     moving_flag_node_->setVisible(false);
     delete current_flag_property_;
@@ -127,7 +153,7 @@ void PlantFlagTool::deactivate() {
 // place and drop the pointer to the VectorProperty.  Dropping the
 // pointer means when the tool is deactivated the VectorProperty won't
 // be deleted, which is what we want.
-int PlantFlagTool::processMouseEvent(rviz::ViewportMouseEvent &event) {
+int PlantFlagTool2::processMouseEvent(rviz::ViewportMouseEvent &event) {
   if (!moving_flag_node_) {
     return Render;
   }
@@ -141,11 +167,6 @@ int PlantFlagTool::processMouseEvent(rviz::ViewportMouseEvent &event) {
 
     if (event.leftDown()) {
       makeFlag(intersection);
-      geometry_msgs::Point p;
-      p.x = event.x;
-      p.y = event.y;
-      p.z = 0;
-      station_pose_pub_.publish(p);
       current_flag_property_ =
           NULL; // Drop the reference so that deactivate() won't remove it.
       return Render | Finished;
@@ -159,7 +180,7 @@ int PlantFlagTool::processMouseEvent(rviz::ViewportMouseEvent &event) {
 
 // This is a helper function to create a new flag in the Ogre scene and save its
 // scene node in a list.
-void PlantFlagTool::makeFlag(const Ogre::Vector3 &position) {
+void PlantFlagTool2::makeFlag(const Ogre::Vector3 &position) {
   Ogre::SceneNode *node =
       scene_manager_->getRootSceneNode()->createChildSceneNode();
   Ogre::Entity *entity = scene_manager_->createEntity(flag_resource_);
@@ -185,7 +206,7 @@ void PlantFlagTool::makeFlag(const Ogre::Vector3 &position) {
 // We first save the class ID to the config object so the
 // rviz::ToolManager will know what to instantiate when the config
 // file is read back in.
-void PlantFlagTool::save(rviz::Config config) const {
+void PlantFlagTool2::save(rviz::Config config) const {
   config.mapSetValue("Class", getClassId());
 
   // The top level of this tool's Config is a map, but our flags
@@ -213,7 +234,7 @@ void PlantFlagTool::save(rviz::Config config) const {
 // In a tool's load() function, we don't need to read its class
 // because that has already been read and used to instantiate the
 // object before this can have been called.
-void PlantFlagTool::load(const rviz::Config &config) {
+void PlantFlagTool2::load(const rviz::Config &config) {
   // Here we get the "Flags" sub-config from the tool config and loop over its
   // entries:
   rviz::Config flags_config = config.mapGetChild("Flags");
@@ -256,5 +277,5 @@ void PlantFlagTool::load(const rviz::Config &config) {
 } // end namespace rviz_plugin_tutorials
 
 #include <pluginlib/class_list_macros.h>
-PLUGINLIB_EXPORT_CLASS(rviz_plugin_tutorials::PlantFlagTool, rviz::Tool)
+PLUGINLIB_EXPORT_CLASS(rviz_plugin_tutorials::PlantFlagTool2, rviz::Tool)
 // END_TUTORIAL

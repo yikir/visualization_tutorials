@@ -26,11 +26,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef PLANT_FLAG_TOOL_H
-#define PLANT_FLAG_TOOL_H
-
-#include <ros/publisher.h>
-#include <ros/ros.h>
+#pragma once
 #include <rviz/tool.h>
 
 namespace Ogre {
@@ -50,11 +46,11 @@ namespace rviz_plugin_tutorials {
 // Here we declare our new subclass of rviz::Tool.  Every tool
 // which can be added to the tool bar is a subclass of
 // rviz::Tool.
-class PlantFlagTool : public rviz::Tool {
+class PlantFlagTool1 : public rviz::Tool {
   Q_OBJECT
 public:
-  PlantFlagTool();
-  ~PlantFlagTool();
+  PlantFlagTool1();
+  ~PlantFlagTool1();
 
   virtual void onInitialize();
 
@@ -73,12 +69,8 @@ private:
   Ogre::SceneNode *moving_flag_node_;
   std::string flag_resource_;
   rviz::VectorProperty *current_flag_property_;
-
-  ros::NodeHandle nh_;
-  ros::Publisher station_pose_pub_;
 };
 // END_TUTORIAL
 
 } // end namespace rviz_plugin_tutorials
 
-#endif // PLANT_FLAG_TOOL_H

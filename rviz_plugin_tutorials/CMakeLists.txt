@@ -39,6 +39,8 @@ set(SRC_FILES
   src/imu_visual.cpp
   src/plant_flag_tool.cpp
   src/teleop_panel.cpp
+        src/test1.cpp
+        src/test2.cpp
 )
 
 ## An rviz plugin is just a shared library, so here we declare the

@@ -21,4 +21,18 @@
       Tool for planting flags on the ground plane in rviz.
     </description>
   </class>
+  <class name="rviz_plugin_tutorials/Test1"
+         type="rviz_plugin_tutorials::PlantFlagTool1"
+           base_class_type="rviz::Tool">
+        <description>
+            Tool for planting flags on the ground plane in rviz.
+        </description>
+  </class>
+  <class name="rviz_plugin_tutorials/Test2"
+         type="rviz_plugin_tutorials::PlantFlagTool2"
+           base_class_type="rviz::Tool">
+        <description>
+            Tool for planting flags on the ground plane in rviz.
+        </description>
+  </class>
 </library>
