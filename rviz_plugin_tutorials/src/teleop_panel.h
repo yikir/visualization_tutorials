@@ -30,15 +30,14 @@
 #define TELEOP_PANEL_H
 
 #ifndef Q_MOC_RUN
-# include <ros/ros.h>
+#include <ros/ros.h>
 
-# include <rviz/panel.h>
+#include <rviz/panel.h>
 #endif
 
 class QLineEdit;
 
-namespace rviz_plugin_tutorials
-{
+namespace rviz_plugin_tutorials {
 
 class DriveWidget;
 
@@ -50,11 +49,10 @@ class DriveWidget;
 // TeleopPanel will show a text-entry field to set the output topic
 // and a 2D control area.  The 2D control area is implemented by the
 // DriveWidget class, and is described there.
-class TeleopPanel: public rviz::Panel
-{
-// This class uses Qt slots and is a subclass of QObject, so it needs
-// the Q_OBJECT macro.
-Q_OBJECT
+class TeleopPanel : public rviz::Panel {
+  // This class uses Qt slots and is a subclass of QObject, so it needs
+  // the Q_OBJECT macro.
+  Q_OBJECT
 public:
   // QWidget subclass constructors usually take a parent widget
   // parameter (which usually defaults to 0).  At the same time,
@@ -63,25 +61,25 @@ public:
   // a default of 0 lets the default constructor work and also lets
   // someone using the class for something else to pass in a parent
   // widget as they normally would with Qt.
-  TeleopPanel( QWidget* parent = 0 );
+  TeleopPanel(QWidget *parent = 0);
 
   // Now we declare overrides of rviz::Panel functions for saving and
   // loading data from the config file.  Here the data is the
   // topic name.
-  virtual void load( const rviz::Config& config );
-  virtual void save( rviz::Config config ) const;
+  virtual void load(const rviz::Config &config);
+  virtual void save(rviz::Config config) const;
 
   // Next come a couple of public Qt slots.
 public Q_SLOTS:
   // The control area, DriveWidget, sends its output to a Qt signal
   // for ease of re-use, so here we declare a Qt slot to receive it.
-  void setVel( float linear_velocity_, float angular_velocity_ );
+  void setVel(float linear_velocity_, float angular_velocity_);
 
   // In this example setTopic() does not get connected to any signal
   // (it is called directly), but it is easy to define it as a public
   // slot instead of a private function in case it would be useful to
   // some other user.
-  void setTopic( const QString& topic );
+  void setTopic(const QString &topic);
 
   // Here we declare some internal slots.
 protected Q_SLOTS:
@@ -98,10 +96,14 @@ protected Q_SLOTS:
 protected:
   // The control-area widget which turns mouse events into command
   // velocities.
-  DriveWidget* drive_widget_;
+  DriveWidget *drive_widget_;
 
   // One-line text editor for entering the outgoing ROS topic name.
-  QLineEdit* output_topic_editor_;
+  QLineEdit *output_topic_editor_;
+  QLineEdit *output_topic_editor_1;
+  QLineEdit *output_topic_editor_2;
+  QLineEdit *output_topic_editor_3;
+  QLineEdit *output_topic_editor_4;
 
   // The current name of the output topic.
   QString output_topic_;

@@ -29,20 +29,20 @@
 
 #include <stdio.h>
 
-#include <QPainter>
-#include <QLineEdit>
-#include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QLineEdit>
+#include <QPainter>
+#include <QPushButton>
 #include <QTimer>
+#include <QVBoxLayout>
 
 #include <geometry_msgs/Twist.h>
 
 #include "drive_widget.h"
 #include "teleop_panel.h"
 
-namespace rviz_plugin_tutorials
-{
+namespace rviz_plugin_tutorials {
 
 // BEGIN_TUTORIAL
 // Here is the implementation of the TeleopPanel class.  TeleopPanel
@@ -56,56 +56,71 @@ namespace rviz_plugin_tutorials
 // passing the optional *parent* argument on to the superclass
 // constructor, and also zero-ing the velocities we will be
 // publishing.
-TeleopPanel::TeleopPanel( QWidget* parent )
-  : rviz::Panel( parent )
-  , linear_velocity_( 0 )
-  , angular_velocity_( 0 )
-{
+TeleopPanel::TeleopPanel(QWidget *parent)
+    : rviz::Panel(parent), linear_velocity_(0), angular_velocity_(0) {
   // Next we lay out the "output topic" text entry field using a
   // QLabel and a QLineEdit in a QHBoxLayout.
-  QHBoxLayout* topic_layout = new QHBoxLayout;
-  topic_layout->addWidget( new QLabel( "Output Topic:" ));
+  QVBoxLayout *topic_layout = new QVBoxLayout;
+  topic_layout->addWidget(new QLabel("Output Topic:"));
   output_topic_editor_ = new QLineEdit;
-  topic_layout->addWidget( output_topic_editor_ );
+  output_topic_editor_1 = new QLineEdit;
+  output_topic_editor_2 = new QLineEdit;
+  output_topic_editor_3 = new QLineEdit;
+  output_topic_editor_4 = new QLineEdit;
+  topic_layout->addWidget(output_topic_editor_);
+
+  topic_layout->addWidget(new QLabel("Output Topic:"));
+  topic_layout->addWidget(output_topic_editor_1);
+  topic_layout->addWidget(new QLabel("Output Topic:"));
+  topic_layout->addWidget(output_topic_editor_2);
+  topic_layout->addWidget(new QLabel("Output Topic:"));
+  topic_layout->addWidget(output_topic_editor_3);
+  topic_layout->addWidget(new QLabel("Output Topic:"));
+  topic_layout->addWidget(output_topic_editor_4);
+  topic_layout->addWidget(new QLabel("Output Topic:"));
+  topic_layout->addWidget(new QPushButton("Output Topic:"));
 
   // Then create the control widget.
-  drive_widget_ = new DriveWidget;
+  //  drive_widget_ = new DriveWidget;
 
   // Lay out the topic field above the control widget.
-  QVBoxLayout* layout = new QVBoxLayout;
-  layout->addLayout( topic_layout );
-  layout->addWidget( drive_widget_ );
-  setLayout( layout );
+  //  QVBoxLayout *layout = new QVBoxLayout;
+  //  layout->addLayout(topic_layout);
+  //  layout->addWidget(drive_widget_);
+  setLayout(topic_layout);
 
   // Create a timer for sending the output.  Motor controllers want to
   // be reassured frequently that they are doing the right thing, so
   // we keep re-sending velocities even when they aren't changing.
-  // 
+  //
   // Here we take advantage of QObject's memory management behavior:
   // since "this" is passed to the new QTimer as its parent, the
   // QTimer is deleted by the QObject destructor when this TeleopPanel
   // object is destroyed.  Therefore we don't need to keep a pointer
   // to the timer.
-  QTimer* output_timer = new QTimer( this );
-
-  // Next we make signal/slot connections.
-  connect( drive_widget_, SIGNAL( outputVelocity( float, float )), this, SLOT( setVel( float, float )));
-  connect( output_topic_editor_, SIGNAL( editingFinished() ), this, SLOT( updateTopic() ));
-  connect( output_timer, SIGNAL( timeout() ), this, SLOT( sendVel() ));
-
-  // Start the timer.
-  output_timer->start( 100 );
-
-  // Make the control widget start disabled, since we don't start with an output topic.
-  drive_widget_->setEnabled( false );
+  //  QTimer *output_timer = new QTimer(this);
+  //
+  //  // Next we make signal/slot connections.
+  //  connect(drive_widget_, SIGNAL(outputVelocity(float, float)), this,
+  //          SLOT(setVel(float, float)));
+  //  connect(output_topic_editor_, SIGNAL(editingFinished()), this,
+  //          SLOT(updateTopic()));
+  //  connect(output_timer, SIGNAL(timeout()), this, SLOT(sendVel()));
+  //
+  //  // Start the timer.
+  //  output_timer->start(100);
+  //
+  //  // Make the control widget start disabled, since we don't start with an
+  //  output
+  //  // topic.
+  //  drive_widget_->setEnabled(false);
 }
 
 // setVel() is connected to the DriveWidget's output, which is sent
 // whenever it changes due to a mouse event.  This just records the
 // values it is given.  The data doesn't actually get sent until the
 // next timer callback.
-void TeleopPanel::setVel( float lin, float ang )
-{
+void TeleopPanel::setVel(float lin, float ang) {
   linear_velocity_ = lin;
   angular_velocity_ = ang;
 }
@@ -114,30 +129,23 @@ void TeleopPanel::setVel( float lin, float ang )
 // results.  This is connected to QLineEdit::editingFinished() which
 // fires when the user presses Enter or Tab or otherwise moves focus
 // away.
-void TeleopPanel::updateTopic()
-{
-  setTopic( output_topic_editor_->text() );
-}
+void TeleopPanel::updateTopic() { setTopic(output_topic_editor_->text()); }
 
 // Set the topic name we are publishing to.
-void TeleopPanel::setTopic( const QString& new_topic )
-{
+void TeleopPanel::setTopic(const QString &new_topic) {
   // Only take action if the name has changed.
-  if( new_topic != output_topic_ )
-  {
+  if (new_topic != output_topic_) {
     output_topic_ = new_topic;
     // If the topic is the empty string, don't publish anything.
-    if( output_topic_ == "" )
-    {
+    if (output_topic_ == "") {
       velocity_publisher_.shutdown();
-    }
-    else
-    {
+    } else {
       // The old ``velocity_publisher_`` is destroyed by this assignment,
       // and thus the old topic advertisement is removed.  The call to
       // nh_advertise() says we want to publish data on the new topic
       // name.
-      velocity_publisher_ = nh_.advertise<geometry_msgs::Twist>( output_topic_.toStdString(), 1 );
+      velocity_publisher_ =
+          nh_.advertise<geometry_msgs::Twist>(output_topic_.toStdString(), 1);
     }
     // rviz::Panel defines the configChanged() signal.  Emitting it
     // tells RViz that something in this panel has changed that will
@@ -149,15 +157,13 @@ void TeleopPanel::setTopic( const QString& new_topic )
   }
 
   // Gray out the control widget when the output topic is empty.
-  drive_widget_->setEnabled( output_topic_ != "" );
+  drive_widget_->setEnabled(output_topic_ != "");
 }
 
 // Publish the control velocities if ROS is not shutting down and the
 // publisher is ready with a valid topic name.
-void TeleopPanel::sendVel()
-{
-  if( ros::ok() && velocity_publisher_ )
-  {
+void TeleopPanel::sendVel() {
+  if (ros::ok() && velocity_publisher_) {
     geometry_msgs::Twist msg;
     msg.linear.x = linear_velocity_;
     msg.linear.y = 0;
@@ -165,27 +171,24 @@ void TeleopPanel::sendVel()
     msg.angular.x = 0;
     msg.angular.y = 0;
     msg.angular.z = angular_velocity_;
-    velocity_publisher_.publish( msg );
+    velocity_publisher_.publish(msg);
   }
 }
 
 // Save all configuration data from this panel to the given
 // Config object.  It is important here that you call save()
 // on the parent class so the class id and panel name get saved.
-void TeleopPanel::save( rviz::Config config ) const
-{
-  rviz::Panel::save( config );
-  config.mapSetValue( "Topic", output_topic_ );
+void TeleopPanel::save(rviz::Config config) const {
+  rviz::Panel::save(config);
+  config.mapSetValue("Topic", output_topic_);
 }
 
 // Load all configuration data for this panel from the given Config object.
-void TeleopPanel::load( const rviz::Config& config )
-{
-  rviz::Panel::load( config );
+void TeleopPanel::load(const rviz::Config &config) {
+  rviz::Panel::load(config);
   QString topic;
-  if( config.mapGetString( "Topic", &topic ))
-  {
-    output_topic_editor_->setText( topic );
+  if (config.mapGetString("Topic", &topic)) {
+    output_topic_editor_->setText(topic);
     updateTopic();
   }
 }
@@ -196,5 +199,5 @@ void TeleopPanel::load( const rviz::Config& config )
 // loadable by pluginlib::ClassLoader must have these two lines
 // compiled in its .cpp file, outside of any namespace scope.
 #include <pluginlib/class_list_macros.h>
-PLUGINLIB_EXPORT_CLASS(rviz_plugin_tutorials::TeleopPanel,rviz::Panel )
+PLUGINLIB_EXPORT_CLASS(rviz_plugin_tutorials::TeleopPanel, rviz::Panel)
 // END_TUTORIAL
